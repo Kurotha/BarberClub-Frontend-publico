@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export interface NavbarProps {
   logoSrc?: string;
@@ -7,7 +7,6 @@ export interface NavbarProps {
   brandSubtitle?: string;
   onBookingClick?: () => void;
   onAccountClick?: () => void;
-  currentPath?: string;
 }
 
 export function Navbar({
@@ -16,9 +15,10 @@ export function Navbar({
   brandSubtitle = 'BARBERÍA & PELUQUERÍA UNISEX',
   onBookingClick,
   onAccountClick,
-  currentPath = '/',
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const navItems = [
     { label: 'Inicio', href: '/' },
@@ -30,15 +30,11 @@ export function Navbar({
   return (
     <header className="bc-navbar">
       <div className="bc-navbar__container">
-        
+
         {/* Logo & Marca */}
         <Link to="/" className="bc-navbar__brand">
           <div className="bc-navbar__logo-wrapper">
-            <img
-              src={logoSrc}
-              alt={brandName}
-              className="bc-navbar__logo"
-            />
+            <img src={logoSrc} alt={brandName} className="bc-navbar__logo" />
           </div>
           <div className="bc-navbar__brand-text">
             <span className="bc-navbar__title">{brandName}</span>
@@ -62,8 +58,8 @@ export function Navbar({
           })}
         </nav>
 
-        {/* Acciones: CTA Reservar Cita + Mi Cuenta */}
-                <div className="bc-navbar__actions">
+        {/* Acciones */}
+        <div className="bc-navbar__actions">
           <button
             type="button"
             onClick={onBookingClick}
@@ -82,7 +78,7 @@ export function Navbar({
             <svg
               className="bc-navbar__icon"
               viewBox="0 0 24 24"
-              xmlns="http://w3.org"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
             </svg>
@@ -119,8 +115,6 @@ export function Navbar({
             </svg>
           </button>
         </div>
-
-
       </div>
 
       {/* Menú Desplegable Móvil */}
