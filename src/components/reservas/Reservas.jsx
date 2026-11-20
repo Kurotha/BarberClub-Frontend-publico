@@ -1,22 +1,14 @@
-import React from 'react'
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import {
-  Award, Calendar, CheckCircle2, Coffee, MapPin,
-  ShieldCheck, Sparkles, UserCheck, X, AlertTriangle
-} from 'lucide-react';
+import { CheckCircle2, ShieldCheck, X, AlertTriangle } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const Reservas = ({ modalAbierto, setModalAbierto }) => {
-    const location = useLocation();
-
-    const [sucursalesApi, setSucursalesApi] = useState([]);
+  const [sucursalesApi, setSucursalesApi] = useState([]);
   const [especialistasApi, setEspecialistasApi] = useState([]);
   const [serviciosApi, setServiciosApi] = useState([]);
 
-  // Estado Modal Reserva (HU-01 + HU-05 + HU-09)
   const [especialistaSel, setEspecialistaSel] = useState('');
   const [sucursalSel, setSucursalSel] = useState('');
   const [servicioSel, setServicioSel] = useState('');
@@ -49,22 +41,6 @@ export const Reservas = ({ modalAbierto, setModalAbierto }) => {
     } catch (e) {
       console.error('Error conectando con Django API:', e);
     }
-  };
-
-  const abrirModalReserva = (perfil) => {
-    const sucMatch = sucursalesApi.find((s) => s.comuna === perfil?.comuna) || sucursalesApi[0];
-    const espMatch =
-      especialistasApi.find((e) => e.nombre_completo === perfil?.nombre) ||
-      especialistasApi.find((e) => e.sucursal === sucMatch?.id) ||
-      especialistasApi[0];
-
-    setSucursalSel(sucMatch?.id || '');
-    setEspecialistaSel(espMatch?.id || '');
-    setMensajeOk(null);
-    setAlternativasVecinas(null);
-    setErrorMsg('');
-    setConsentimiento(false);
-    setModalAbierto(true);
   };
 
   const handleConfirmarCita = async (e) => {
@@ -108,7 +84,6 @@ export const Reservas = ({ modalAbierto, setModalAbierto }) => {
 
   return (
     <div>
-    {/* Modal de Reserva Conectado a Django (HU-01, HU-05, HU-09) */}
       {modalAbierto && (
         <div className="modal-backdrop">
           <div className="modal-box">
@@ -183,7 +158,6 @@ export const Reservas = ({ modalAbierto, setModalAbierto }) => {
                 <input type="email" placeholder="cliente@correo.cl" value={correo} onChange={(e) => setCorreo(e.target.value)} required />
               </div>
 
-              {/* Consentimiento expreso NO premarcado (Ley N.° 21.719 / HU-09) */}
               <div className="consent-box">
                 <input
                   type="checkbox"
@@ -251,7 +225,8 @@ export const Reservas = ({ modalAbierto, setModalAbierto }) => {
           </div>
         </div>
       )}
-      </div>
-  )
-}
+    </div>
+  );
+};
+
 export default Reservas;
