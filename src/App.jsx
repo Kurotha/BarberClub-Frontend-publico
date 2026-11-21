@@ -6,10 +6,12 @@ import Inicio from './pages/Inicio';
 import Maestros from './pages/Maestros';
 import Servicios from './pages/Servicios';
 import Reservas from './components/reservas/Reservas';
+import Login from './components/login/Login'; // 👈 NUEVO IMPORT
 
 function AppLayout() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [sucursalPrevia, setSucursalPrevia] = useState('');
+  const [loginAbierto, setLoginAbierto] = useState(false); // 👈 NUEVO ESTADO PARA LOGIN
 
   const abrirModalReserva = (sucursalId = '') => {
     setSucursalPrevia(sucursalId); 
@@ -18,27 +20,35 @@ function AppLayout() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <Navbar onBookingClick={() => abrirModalReserva('')} />
+      
+      {/* 👇 Le pasamos la función para abrir el login 👇 */}
+      <Navbar 
+        onBookingClick={() => abrirModalReserva('')} 
+        onAccountClick={() => setLoginAbierto(true)} 
+      />
       
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Inicio onBookingClick={abrirModalReserva} />} />
-          
           <Route path="/servicios" element={<Servicios onBookingClick={abrirModalReserva} />} />
-          
-          {/* 👇 AQUÍ ESTÁ EL CAMBIO: Le pasamos la función a Maestros 👇 */}
           <Route path="/maestros" element={<Maestros onBookingClick={abrirModalReserva} />} />
-          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
       <Footer />
 
+      {/* Modal de Reservas */}
       <Reservas 
         modalAbierto={modalAbierto} 
         setModalAbierto={setModalAbierto} 
         sucursalPrevia={sucursalPrevia} 
+      />
+
+      {/* 👇 Modal de Login 👇 */}
+      <Login 
+        modalAbierto={loginAbierto} 
+        setModalAbierto={setLoginAbierto} 
       />
     </div>
   );
