@@ -380,19 +380,21 @@ h1,
   flex-direction: column;
 }
 
+/* Título del navbar en dorado */
 .bc-navbar__title {
   font-family: var(--md-sys-typescale-display-font-family);
   font-size: 1.125rem;
   letter-spacing: 0.18em;
   font-weight: 600;
-  color: var(--md-sys-color-on-background);
+  color: var(--app-color-gold-action); 
   line-height: 1.2;
 }
 
+/* 👇 AQUÍ ESTÁ EL CAMBIO DEL SUBTÍTULO 👇 */
 .bc-navbar__subtitle {
   font-size: 0.625rem;
   letter-spacing: 0.25em;
-  color: var(--app-color-gold-action);
+  color: var(--md-sys-color-on-background); /* Dorado claro / Beige del mockup */
   text-transform: uppercase;
   font-weight: 500;
   margin-top: 2px;
