@@ -24,10 +24,11 @@ function AppLayout() {
         <Routes>
           <Route path="/" element={<Inicio onBookingClick={abrirModalReserva} />} />
           
-          {/* 👇 AQUÍ ESTÁ EL CAMBIO: Le pasamos la función a Servicios 👇 */}
           <Route path="/servicios" element={<Servicios onBookingClick={abrirModalReserva} />} />
           
-          <Route path="/maestros" element={<Maestros />} />
+          {/* 👇 AQUÍ ESTÁ EL CAMBIO: Le pasamos la función a Maestros 👇 */}
+          <Route path="/maestros" element={<Maestros onBookingClick={abrirModalReserva} />} />
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

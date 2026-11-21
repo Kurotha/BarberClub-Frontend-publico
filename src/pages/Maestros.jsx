@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Award, Calendar, MapPin, Sparkles, UserCheck, Coffee, MessageCircle } from 'lucide-react';
+import { Award, Calendar, MapPin, Sparkles, UserCheck, Coffee, MessageCircle, CheckCircle } from 'lucide-react'; // 👈 Agregué CheckCircle
 
 const PERFILES = [
   { nombre: 'Don Vincenzo Morales', comuna: 'Las Condes', local: 'El Golf', disciplina: 'BARBERIA', cargo: 'Master Barber & Tradición Solingen', academia: 'Formación en Milán y Sevilla', exp: '22 años de trayectoria', bio: 'Especialista en afeitado imperial a navaja barbera clásica, degradados artesanales a peine y tijera, y esculpido de barba.', tags: ['Afeitado a Navaja', 'Corte Clásico Tijera', 'Perfilado Imperial'], foto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop' },
@@ -12,7 +12,8 @@ const PERFILES = [
   { nombre: 'Sofía Montalva', comuna: 'Lo Barnechea', local: 'La Dehesa', disciplina: 'UNISEX', cargo: 'Colorista & Terapeuta Capilar', academia: 'Especialista en Alisados Orgánicos', exp: '9 años de trayectoria', bio: 'Tratamientos botánicos de hidratación profunda bajo vapor ozonizado, fototerapia LED capilar y tonalizaciones.', tags: ['Fototerapia LED', 'Coloración Orgánica', 'Detox Capilar'], foto: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=400&auto=format&fit=crop' },
 ];
 
-export default function Maestros() {
+// 👇 Agregamos onBookingClick a las props 👇
+export default function Maestros({ onBookingClick }) {
   const [filtroComuna, setFiltroComuna] = useState('TODAS');
   const [filtroDisciplina, setFiltroDisciplina] = useState('TODAS');
 
@@ -23,7 +24,7 @@ export default function Maestros() {
   });
 
   return (
-    <div data-theme="dark" style={{ backgroundColor: '#0d0d0d', minHeight: '100vh', color: '#f5f1e8', paddingBottom: '60px' }}>
+    <div style={{ backgroundColor: '#0d0d0d', minHeight: '100vh', color: '#f5f1e8', paddingBottom: '60px' }}>
       
       {/* Hero */}
       <section style={{ padding: '80px 20px 40px', textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}>
@@ -36,7 +37,7 @@ export default function Maestros() {
         <p style={{ color: '#b8c3cc', fontSize: '1.1rem', lineHeight: '1.6' }}>
           Un colectivo de talentos con trayectoria internacional, expertos en visagismo fisonómico, técnicas de tijera clásicas, barbería tradicional y alta colorimetría unisex distribuidos en nuestros 4 ateliers en Santiago.
         </p>
-        <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', marginTop: '35px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', marginTop: '35px', fontSize: '0.9rem', fontWeight: 'bold', flexWrap: 'wrap' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Award size={18} color="#c9a227" /> Certificación Internacional</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><UserCheck size={18} color="#c9a227" /> Consultoría de Rostro 100% Personalizada</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Coffee size={18} color="#c9a227" /> Cortesía de Café & Single Malt</span>
@@ -53,10 +54,10 @@ export default function Maestros() {
           ))}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => setFiltroDisciplina('TODAS')} style={{ background: filtroDisciplina === 'TODAS' ? '#123a5a' : 'transparent', color: filtroDisciplina === 'TODAS' ? '#fff' : '#b8c3cc', padding: '10px 20px', borderRadius: '8px', border: filtroDisciplina === 'TODAS' ? '1px solid #123a5a' : '1px solid transparent', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>TODAS LAS DISCIPLINAS</button>
-            <button onClick={() => setFiltroDisciplina('BARBERIA')} style={{ background: filtroDisciplina === 'BARBERIA' ? '#123a5a' : 'transparent', color: filtroDisciplina === 'BARBERIA' ? '#fff' : '#b8c3cc', padding: '10px 20px', borderRadius: '8px', border: filtroDisciplina === 'BARBERIA' ? '1px solid #123a5a' : '1px solid transparent', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>MAESTROS BARBEROS & AFEITADO</button>
-            <button onClick={() => setFiltroDisciplina('UNISEX')} style={{ background: filtroDisciplina === 'UNISEX' ? '#123a5a' : 'transparent', color: filtroDisciplina === 'UNISEX' ? '#fff' : '#b8c3cc', padding: '10px 20px', borderRadius: '8px', border: filtroDisciplina === 'UNISEX' ? '1px solid #123a5a' : '1px solid transparent', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>ESTILISTAS UNISEX & COLORIMETRÍA</button>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button onClick={() => setFiltroDisciplina('TODAS')} style={{ background: filtroDisciplina === 'TODAS' ? '#123a5a' : 'transparent', color: filtroDisciplina === 'TODAS' ? '#fff' : '#b8c3cc', padding: '10px 20px', borderRadius: '8px', border: filtroDisciplina === 'TODAS' ? '1px solid #123a5a' : '1px solid #333', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>TODAS LAS DISCIPLINAS</button>
+            <button onClick={() => setFiltroDisciplina('BARBERIA')} style={{ background: filtroDisciplina === 'BARBERIA' ? '#123a5a' : 'transparent', color: filtroDisciplina === 'BARBERIA' ? '#fff' : '#b8c3cc', padding: '10px 20px', borderRadius: '8px', border: filtroDisciplina === 'BARBERIA' ? '1px solid #123a5a' : '1px solid #333', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>MAESTROS BARBEROS & AFEITADO</button>
+            <button onClick={() => setFiltroDisciplina('UNISEX')} style={{ background: filtroDisciplina === 'UNISEX' ? '#123a5a' : 'transparent', color: filtroDisciplina === 'UNISEX' ? '#fff' : '#b8c3cc', padding: '10px 20px', borderRadius: '8px', border: filtroDisciplina === 'UNISEX' ? '1px solid #123a5a' : '1px solid #333', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>ESTILISTAS UNISEX & COLORIMETRÍA</button>
           </div>
           <span style={{ fontSize: '0.85rem', color: '#4ade80', display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4ade80' }}></span> Mostrando {perfilesFiltrados.length} artistas disponibles
@@ -87,7 +88,10 @@ export default function Maestros() {
                 {p.tags.map(t => <span key={t} style={{ background: '#22252b', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', color: '#b8c3cc', border: '1px solid #333' }}>{t}</span>)}
               </div>
               
-              <button style={{ background: '#c9a227', color: '#000', border: 'none', padding: '15px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
+              {/* 👇 Botón de reservar conectado 👇 */}
+              <button 
+                onClick={() => onBookingClick('')}
+                style={{ background: '#c9a227', color: '#000', border: 'none', padding: '15px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
                 RESERVAR CON {p.nombre.replace('Don ', '').split(' ')[0].toUpperCase()} <Calendar size={18} />
               </button>
             </div>
@@ -96,12 +100,12 @@ export default function Maestros() {
       </main>
 
       {/* Bloques Extras */}
-      <section style={{ maxWidth: '1280px', margin: '60px auto 0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', padding: '0 20px' }}>
+      <section style={{ maxWidth: '1280px', margin: '60px auto 0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '25px', padding: '0 20px' }}>
         <div style={{ background: '#181a1f', padding: '40px', borderRadius: '16px', border: '1px solid #22252b' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#22252b', padding: '8px 16px', borderRadius: '20px', fontSize: '10px', color: '#c9a227', marginBottom: '20px', fontWeight: 'bold', letterSpacing: '1px' }}>PROTOCOLO BARBER CLUB & BEAUTY</div>
           <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '1.8rem', margin: '0 0 15px 0', fontWeight: 'normal' }}>Diagnóstico de Visagismo Incluido</h3>
           <p style={{ color: '#b8c3cc', fontSize: '0.95rem', lineHeight: '1.6' }}>Cada reserva con nuestros maestros incluye 10 minutos de consultoría fisonómica previa para determinar el estilo ideal según tus rasgos, líneas óseas, textura y estructura capilar sin costo adicional.</p>
-          <div style={{ display: 'flex', gap: '20px', marginTop: '25px', fontSize: '0.85rem', color: '#c9a227', fontWeight: 'bold' }}>
+          <div style={{ display: 'flex', gap: '20px', marginTop: '25px', fontSize: '0.85rem', color: '#c9a227', fontWeight: 'bold', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle size={14}/> Análisis Óseo</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle size={14}/> Prueba de Textura</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><CheckCircle size={14}/> Recomendación Pomada/Cera</span>
@@ -114,9 +118,15 @@ export default function Maestros() {
           </div>
           <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '1.8rem', margin: '0 0 15px 0', fontWeight: 'normal' }}>¿Indeciso sobre qué profesional elegir?</h3>
           <p style={{ color: '#cde7f8', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '25px' }}>Contacta a nuestro Concierge VIP para una recomendación a medida según tu ubicación, tipo de cabello y servicio deseado.</p>
-          <button style={{ background: '#c9a227', color: '#000', border: 'none', padding: '15px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '0.95rem' }}>
+          
+          {/* 👇 Botón de WhatsApp conectado 👇 */}
+          <a 
+            href="https://wa.me/56954234739?text=Hola,%20necesito%20asesoría%20con%20el%20Concierge%20VIP" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ background: '#c9a227', color: '#000', border: 'none', padding: '15px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', fontSize: '0.95rem', textDecoration: 'none' }}>
             <MessageCircle size={18} /> HABLAR CON CONCIERGE VIP
-          </button>
+          </a>
         </div>
       </section>
     </div>
