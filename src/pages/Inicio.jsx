@@ -1,327 +1,415 @@
-import React from 'react'
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import {
-  Award, Calendar, CheckCircle2, Coffee, MapPin,
-  ShieldCheck, Sparkles, UserCheck, X, AlertTriangle
-} from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Sparkles, ShieldCheck, Scissors, Hourglass, Leaf, GlassWater, Target, Clock, MapPin, Phone, Car, Calendar } from 'lucide-react';
+import MapaSucursal from '../components/Mapa/MapaSucursal';
 
-const API_URL = import.meta.env.VITE_API_URL;
+export default function Inicio({ onBookingClick }) {
+  // Cambiamos el estado inicial al ID 1 (Providencia) para que coincida
+  const [sucursalActiva, setSucursalActiva] = useState(1);
 
-const PERFILES_PROTOTIPO = [
-  {
-    nombre: 'Sebastián Krause',
-    comuna: 'Las Condes',
-    local: 'El Golf',
-    disciplina: 'BARBERIA',
-    cargo: 'Maestro Barbero & Visagismo Facial',
-    academia: 'Formado en Buenos Aires',
-    exp: '12 años de experiencia',
-    bio: 'Dominio de cortes crop texturizados, perfilado de patillas y barba con toalla caliente infusionada en cedro y styling.',
-    tags: ['Textured Crop', 'Tratamiento Barba', 'Ritual Toalla'],
-    foto: 'https://unsplash.com',
-  },
-  {
-    nombre: 'Valentina Restrepo',
-    comuna: 'Vitacura',
-    local: 'Alonso de Córdova',
-    disciplina: 'UNISEX',
-    cargo: 'Estilista Senior & Bob Architect',
-    academia: 'Sassoon Academy London',
-    exp: '11 años de trayectoria',
-    bio: 'Arquitectura de cortes bob precisos, micro-flequillos y peinados para eventos de etiqueta con asesoría de visagismo.',
-    tags: ['Precision Bob', 'Visagismo Óseo', 'Tratamientos Gloss'],
-    foto: 'https://unsplash.com',
-  },
-  {
-    nombre: 'Arturo Benavides',
-    comuna: 'Providencia',
-    local: 'Pedro de Valdivia',
-    disciplina: 'BARBERIA',
-    cargo: 'Barbero Tradicional & Masaje Craneal',
-    academia: 'Maestro de la vieja escuela',
-    exp: '16 años de trayectoria',
-    bio: 'Maestría en ritual de afeitado con espuma tibia de brocha tejón y navaja Solingen, complementado con masaje craneal.',
-    tags: ['Afeitado Solingen', 'Shiatsu Craneal', 'Bigote Clásico'],
-    foto: 'https://unsplash.com',
-  },
-  {
-    nombre: 'Sofía Montalva',
-    comuna: 'Lo Barnechea',
-    local: 'La Dehesa',
-    disciplina: 'UNISEX',
-    cargo: 'Colorista & Terapeuta Capilar',
-    academia: 'Especialista en Alisados Orgánicos',
-    exp: '9 años de trayectoria',
-    bio: 'Tratamientos botánicos de hidratación profunda bajo vapor ozonizado, fototerapia LED capilar y tonalizaciones.',
-    tags: ['Fototerapia LED', 'Coloración Orgánica', 'Detox Capilar'],
-    foto: 'https://unsplash.com',
-  },
-  {
-    nombre: 'Don Vincenzo Morales',
-    comuna: 'Las Condes',
-    local: 'El Golf',
-    disciplina: 'BARBERIA',
-    cargo: 'Master Barber & Tradición Solingen',
-    academia: 'Formación en Milán y Sevilla',
-    exp: '22 años de trayectoria',
-    bio: 'Especialista en afeitado imperial a navaja barbera clásica, degradados artesanales a peine y tijera, y esculpido de barba.',
-    tags: ['Afeitado a Navaja', 'Corte Clásico Tijera', 'Perfilado Imperial'],
-    foto: 'https://unsplash.com',
-  },
-  {
-    nombre: 'Camila Valenzuela',
-    comuna: 'Vitacura',
-    local: 'Alonso de Córdova',
-    disciplina: 'UNISEX',
-    cargo: 'Master Hair Colorist & Balayage Couture',
-    academia: 'Certificación L’Oréal Professionnel París',
-    exp: '14 años de trayectoria',
-    bio: 'Pionera en técnicas de babylights a mano alzada, corrección de color compleja y diseño de cortes en capas de alto movimiento.',
-    tags: ['Balayage Couture', 'Visagismo Capilar', 'Terapia Plex'],
-    foto: 'https://unsplash.com',
-  },
-  {
-    nombre: 'Mateo Sandoval',
-    comuna: 'Providencia',
-    local: 'Pedro de Valdivia',
-    disciplina: 'BARBERIA',
-    cargo: 'Senior Barber & Especialista en Fades',
-    academia: 'Barbershop World Tour Ambassador',
-    exp: '10 años de trayectoria',
-    bio: 'Experto en texturizado contemporáneo, low y mid fades con máquina cóncava, diseños geométricos limpios y rituales de vapor.',
-    tags: ['Skin Fade', 'Texturizado Urbano', 'Spa Facial'],
-    foto: 'https://unsplash.com',
-  },
-  {
-    nombre: 'Éléonore Dupont',
-    comuna: 'Lo Barnechea',
-    local: 'La Dehesa',
-    disciplina: 'UNISEX',
-    cargo: 'Directora Creativa & Maestra de Estilo',
-    academia: 'Ex Atelier Jean Louis David París',
-    exp: '18 años de trayectoria',
-    bio: 'Referente en corte editorial en seco y húmedo, brushing de fijación prolongada y tratamientos de botánica regenerativa.',
-    tags: ['Corte Editorial', 'Brushing Glam', 'Nutrición Botánica'],
-    foto: 'https://unsplash.com',
-  },
-];
-
-
-export const Inicio = () => {
-  const [sucursalesApi, setSucursalesApi] = useState([]);
-  const [especialistasApi, setEspecialistasApi] = useState([]);
-  const [serviciosApi, setServiciosApi] = useState([]);
-
-  const [filtroComuna, setFiltroComuna] = useState('TODAS');
-  const [filtroDisciplina, setFiltroDisciplina] = useState('TODAS');
-
-  // Estado Modal Reserva (HU-01 + HU-05 + HU-09)
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [especialistaSel, setEspecialistaSel] = useState('');
-  const [sucursalSel, setSucursalSel] = useState('');
-  const [servicioSel, setServicioSel] = useState('');
-  const [fechaHora, setFechaHora] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [consentimiento, setConsentimiento] = useState(false);
-
-  const [enviando, setEnviando] = useState(false);
-  const [mensajeOk, setMensajeOk] = useState(null);
-  const [alternativasVecinas, setAlternativasVecinas] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
-
-  useEffect(() => {
-    cargarApi();
-  }, []);
-
-  const cargarApi = async () => {
-    try {
-      const [rSuc, rEsp, rSer] = await Promise.all([
-        axios.get(`${API_URL}/sucursales/`),
-        axios.get(`${API_URL}/especialistas/`),
-        axios.get(`${API_URL}/servicios/`),
-      ]);
-      setSucursalesApi(rSuc.data);
-      setEspecialistasApi(rEsp.data);
-      setServiciosApi(rSer.data);
-      if (rSer.data.length > 0) setServicioSel(rSer.data[0].id);
-    } catch (e) {
-      console.error('Error conectando con Django API:', e);
+  const serviciosInicio = [
+    {
+      etiqueta: 'FIRMA UNISEX',
+      titulo: 'Corte de Autor BarberClub (Unisex)',
+      desc: 'Diagnóstico capilar y morfológico personalizado para damas y caballeros, lavado botánico exfoliante con romero, corte a tijera o navaja y brushing con finalizado de autor.',
+      precio: '32.000',
+      tiempo: '50 min',
+      boton: 'Agendar Tratamiento'
+    },
+    {
+      etiqueta: 'FIRMA TRADICIONAL',
+      titulo: 'Ritual Imperial de Afeitado a Navaja',
+      desc: 'Apertura de poros mediante toallas calientes infundidas con vapor de eucalipto, afeitado a doble pasada con navaja de hoja de acero alemán, masaje con piedras frías y loción hemostática.',
+      precio: '38.000',
+      tiempo: '50 min',
+      boton: 'Agendar Tratamiento'
+    },
+    {
+      etiqueta: 'PELUQUERÍA & SPA',
+      titulo: 'Color, Brushing & Spa Capilar',
+      desc: 'Iluminación o matizado sutil, nutrición profunda con aceites orgánicos de argán y ozonoterapia capilar, sellado térmico y peinado profesional para cualquier largo.',
+      precio: '45.000',
+      tiempo: '60 min',
+      boton: 'Agendar Tratamiento'
+    },
+    {
+      etiqueta: 'EXPERIENCIA COMPLETA',
+      titulo: 'BarberClub Ritual Integral Unisex',
+      desc: 'Corte de autor a medida, sesión de tratamiento capilar restaurador profundo o afeitado a toalla caliente, masaje craneal relajante y peinado final de pasarela.',
+      precio: '62.000',
+      tiempo: '90 min',
+      boton: 'Reservar Pack'
     }
-  };
+  ];
 
-  const abrirModalReserva = (perfil) => {
-    const sucMatch = sucursalesApi.find((s) => s.comuna === perfil?.comuna) || sucursalesApi[0];
-    const espMatch =
-      especialistasApi.find((e) => e.nombre_completo === perfil?.nombre) ||
-      especialistasApi.find((e) => e.sucursal === sucMatch?.id) ||
-      especialistasApi[0];
-
-    setSucursalSel(sucMatch?.id || '');
-    setEspecialistaSel(espMatch?.id || '');
-    setMensajeOk(null);
-    setAlternativasVecinas(null);
-    setErrorMsg('');
-    setConsentimiento(false);
-    setModalAbierto(true);
-  };
-
-  const handleConfirmarCita = async (e) => {
-    e.preventDefault();
-    setErrorMsg('');
-    setMensajeOk(null);
-    setAlternativasVecinas(null);
-
-    if (!consentimiento) {
-      setErrorMsg('Debes aceptar el consentimiento expreso (Ley N.° 21.719) para agendar.');
-      return;
+  // 👇 CAMBIAMOS LOS ID DE TEXTO A NÚMEROS PARA QUE COINCIDAN CON EL MODAL 👇
+  const sucursales = [
+    {
+      id: 1, // Providencia
+      nombre: 'Providencia — P. de Valdivia',
+      badge: 'ATELIER PATRIMONIAL • BARRIO RESIDENCIAL',
+      titulo: 'BarberClub Pedro de Valdivia — Providencia',
+      desc: 'Casona de conservación arquitectónica restaurada con sillones de barbería Koken de 1950 y jardín botánico interior para degustación de café arábico.',
+      direccion: 'Av. Pedro de Valdivia 1025 • Providencia',
+      horario: 'Lunes a Sábado: 09:00 — 20:00 • Domingos: Cerrado',
+      telefono: '+56 9 4829 9003 • Concierge Providencia',
+      coordenadas: [-33.4333, -70.6167]
+    },
+    {
+      id: 2, // Las Condes
+      nombre: 'Las Condes — El Golf',
+      badge: 'ATELIER PREMIUM • BARRIO FINANCIERO',
+      titulo: 'BarberClub Isidora Goyenechea — Las Condes',
+      desc: 'Un espacio de alta costura capilar en el corazón financiero de Santiago, equipado con tecnología de vanguardia y sillones Koken.',
+      direccion: 'Av. Isidora Goyenechea 3120, Penthouse',
+      horario: 'Lunes a Sábado: 09:00 — 20:00 • Domingos: Cerrado',
+      telefono: '+56 9 4829 9001 • Concierge Las Condes',
+      coordenadas: [-33.4167, -70.6000]
+    },
+    {
+      id: 3, // Vitacura
+      nombre: 'Vitacura — Alonso de Córdova',
+      badge: 'ATELIER BOUTIQUE • ZONA EXCLUSIVA',
+      titulo: 'BarberClub Alonso de Córdova — Vitacura',
+      desc: 'Un refugio íntimo y exclusivo rodeado de galerías de arte y diseño, ideal para una experiencia de relax profundo.',
+      direccion: 'Av. Alonso de Córdova 3890',
+      horario: 'Lunes a Sábado: 09:00 — 20:00 • Domingos: Cerrado',
+      telefono: '+56 9 4829 9002 • Concierge Vitacura',
+      coordenadas: [-33.4000, -70.5833]
+    },
+    {
+      id: 4, // Lo Barnechea
+      nombre: 'Lo Barnechea — La Dehesa',
+      badge: 'ATELIER RESORT • ENTORNO NATURAL',
+      titulo: 'BarberClub El Rodeo — Lo Barnechea',
+      desc: 'El equilibrio perfecto entre naturaleza y alta peluquería, con vistas al valle y un ambiente de absoluta desconexión.',
+      direccion: 'Av. El Rodeo 12850',
+      horario: 'Lunes a Sábado: 09:00 - 20:00 • Domingos: Cerrado',
+      telefono: '+56 9 4829 9004 • Concierge Lo Barnechea',
+      coordenadas: [-33.3667, -70.5167]
     }
-
-    setEnviando(true);
-    try {
-      const payload = {
-        cliente_nombre: nombre,
-        cliente_telefono: telefono,
-        cliente_correo: correo,
-        especialista: Number(especialistaSel),
-        sucursal: Number(sucursalSel),
-        servicio: Number(servicioSel),
-        fecha_hora: new Date(fechaHora).toISOString(),
-        consentimiento_aceptado: consentimiento,
-        version_politica: 'v1.0-2026',
-      };
-      const res = await axios.post(`${API_URL}/citas/`, payload);
-      setMensajeOk(
-        `¡Cita #${res.data.id} agendada con ${res.data.especialista_nombre} en ${res.data.sucursal_nombre}!`
-      );
-    } catch (err) {
-      if (err.response && err.response.status === 409) {
-        setAlternativasVecinas(err.response.data.sugerencia_sucursal_cercana || []);
-      } else {
-        setErrorMsg('No se pudo registrar la reserva. Verifica los campos o la conexión al Backend.');
-      }
-    } finally {
-      setEnviando(false);
-    }
-  };
-
-  const perfilesFiltrados = PERFILES_PROTOTIPO.filter((p) => {
-    const okComuna = filtroComuna === 'TODAS' || p.comuna === filtroComuna;
-    const okDisc = filtroDisciplina === 'TODAS' || p.disciplina === filtroDisciplina;
-    return okComuna && okDisc;
-  });
+  ];
 
   return (
-    <div id="inicio">
-      {/* Hero Section idéntico a Figura 1 */}
-      <section className="hero">
-        <div className="badge-pill">
-          <Sparkles size={13} /> ARTESANOS DEL ESTILO & VISAGISMO
-        </div>
-        <h1>Maestros Barberos &amp; Diseñadores Capilares</h1>
-        <p>
-          Un colectivo de talentos con trayectoria internacional, expertos en visagismo fisonómico,
-          técnicas de tijera clásicas, barbería tradicional y alta colorimetría unisex distribuidos
-          en nuestros 4 ateliers en Santiago.
-        </p>
-        <div className="hero-perks">
-          <span><Award size={15} color="#eab32e" /> Certificación Internacional</span>
-          <span><UserCheck size={15} color="#eab32e" /> Consultoría de Rostro 100% Personalizada</span>
-          <span><Coffee size={15} color="#eab32e" /> Cortesía de Café &amp; Single Malt</span>
-        </div>
-      </section>
-
-      {/* Panel de Filtros por Atelier y Disciplina */}
-      <section id="locales" className="filter-panel">
-        <span className="filter-label">FILTRAR POR ATELIER EN SANTIAGO:</span>
-        <div className="filter-row" style={{ marginBottom: '1rem' }}>
-          <button
-            className={`filter-btn ${filtroComuna === 'TODAS' ? 'active' : ''}`}
-            onClick={() => setFiltroComuna('TODAS')}
-          >
-            Todos los Ateliers (8)
-          </button>
-          {['Las Condes', 'Vitacura', 'Providencia', 'Lo Barnechea'].map((com) => {
-            const sub = com === 'Las Condes' ? 'El Golf' : com === 'Vitacura' ? 'Alonso de Córdova' : com === 'Providencia' ? 'P. de Valdivia' : 'La Dehesa';
-            return (
-              <button
-                key={com}
-                className={`filter-btn ${filtroComuna === com ? 'active' : ''}`}
-                onClick={() => setFiltroComuna(com)}
-              >
-                {com} — {sub} (2)
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="filter-row" style={{ justifyContent: 'space-between' }}>
-          <div className="filter-row">
-            <button
-              className={`filter-btn ${filtroDisciplina === 'TODAS' ? 'disc-active' : ''}`}
-              onClick={() => setFiltroDisciplina('TODAS')}
-            >
-              TODAS LAS DISCIPLINAS
-            </button>
-            <button
-              className={`filter-btn ${filtroDisciplina === 'BARBERIA' ? 'disc-active' : ''}`}
-              onClick={() => setFiltroDisciplina('BARBERIA')}
-            >
-              MAESTROS BARBEROS &amp; AFEITADO
-            </button>
-            <button
-              className={`filter-btn ${filtroDisciplina === 'UNISEX' ? 'disc-active' : ''}`}
-              onClick={() => setFiltroDisciplina('UNISEX')}
-            >
-              ESTILISTAS UNISEX &amp; COLORIMETRÍA
-            </button>
+    <div style={{ backgroundColor: '#0d0d0d', color: '#f5f1e8' }}>
+      
+      {/* SECCIÓN 1: Hero Principal */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '40px', maxWidth: '1280px', margin: '0 auto', padding: '80px 20px 40px', alignItems: 'center' }}>
+        <div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#22252b', border: '1px solid #c9a227', color: '#c9a227', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', letterSpacing: '2px', marginBottom: '30px', fontWeight: 'bold' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#c9a227' }}></span>
+            ATELIER UNISEX • BARBERÍA & PELUQUERÍA
           </div>
-          <span style={{ fontSize: '0.78rem', color: '#4ade80' }}>
-            ● Mostrando {perfilesFiltrados.length} artistas disponibles
-          </span>
+          <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '4.5rem', lineHeight: '1.1', margin: '0 0 25px 0', fontWeight: 'normal' }}>
+            El Arte del Corte & Estilismo <br /> Unisex de Élite
+          </h1>
+          <p style={{ color: '#b8c3cc', fontSize: '1.1rem', lineHeight: '1.7', marginBottom: '40px', maxWidth: '95%' }}>
+            Una experiencia integral que fusiona la barbería clásica y la alta peluquería unisex: cortes de tendencia para damas y caballeros, coloración experta, spa capilar y afeitado artesanal en un entorno de máxima discreción y confort.
+          </p>
+          <div style={{ display: 'flex', gap: '30px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div>
+                <div style={{ color: '#c9a227', fontSize: '1.2rem', letterSpacing: '2px' }}>★★★★★</div>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>4.9 / 5.0</div>
+                <div style={{ color: '#888', fontSize: '0.8rem' }}>+1,200 Distinguidos Clientes</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', background: '#181a1f', padding: '15px 25px', borderRadius: '12px', border: '1px solid #22252b' }}>
+              <ShieldCheck size={28} color="#c9a227" />
+              <div>
+                <div style={{ fontWeight: 'bold' }}>Maestros Certificados</div>
+                <div style={{ color: '#888', fontSize: '0.8rem' }}>Gremio de Londres & Milán</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style={{ position: 'relative' }}>
+          <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=800&auto=format&fit=crop" alt="Barbería" style={{ width: '100%', borderRadius: '24px', objectFit: 'cover', height: '600px', display: 'block' }} />
+          <div style={{ position: 'absolute', bottom: '20px', left: '20px', right: '20px', background: 'rgba(13, 13, 13, 0.9)', backdropFilter: 'blur(10px)', padding: '20px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #333' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div style={{ background: '#c9a227', width: '45px', height: '45px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Scissors size={22} color="#000" />
+              </div>
+              <div>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Ritual de Bienvenida</div>
+                <div style={{ color: '#888', fontSize: '0.9rem' }}>Whisky Single Malt • Cortesía</div>
+              </div>
+            </div>
+            <div style={{ background: '#123a5a', color: '#fff', padding: '6px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>VIP</div>
+          </div>
         </div>
       </section>
 
-      {/* Grilla de Tarjetas (Figuras 2 y 3) */}
-      <main id="maestros" className="grid-cards">
-        {perfilesFiltrados.map((p) => (
-          <article key={p.nombre} className="card">
-            <div className="card-img-wrap">
-              <img src={p.foto} alt={p.nombre} />
-              <div className="card-loc-badge">
-                <MapPin size={12} color="#eab32e" /> {p.comuna} — {p.local}
-              </div>
-              <div className="card-exp-badge">{p.exp}</div>
-            </div>
+      {/* SECCIÓN 2: Tarjetas de Estadísticas */}
+      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+        <div style={{ background: '#181a1f', padding: '30px', borderRadius: '16px', border: '1px solid #22252b' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <Hourglass size={24} color="#c9a227" />
+            <span style={{ color: '#c9a227', fontSize: '2.5rem', fontFamily: 'Georgia, serif' }}>15+</span>
+          </div>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem' }}>Años de Maestría</h3>
+          <p style={{ margin: 0, color: '#b8c3cc', fontSize: '0.9rem', lineHeight: '1.5' }}>Técnicas londinenses depuradas transmitidas entre generaciones de artesanos navajeros.</p>
+        </div>
+        <div style={{ background: '#181a1f', padding: '30px', borderRadius: '16px', border: '1px solid #22252b' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <Leaf size={24} color="#c9a227" />
+            <span style={{ color: '#c9a227', fontSize: '2.5rem', fontFamily: 'Georgia, serif' }}>100%</span>
+          </div>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem' }}>Apoteca Orgánica</h3>
+          <p style={{ margin: 0, color: '#b8c3cc', fontSize: '0.9rem', lineHeight: '1.5' }}>Aceites esenciales destilados en frío, pomadas libres de sulfatos y bálsamos nobles.</p>
+        </div>
+        <div style={{ background: '#181a1f', padding: '30px', borderRadius: '16px', border: '1px solid #22252b' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <GlassWater size={24} color="#c9a227" />
+            <span style={{ color: '#c9a227', fontSize: '2.5rem', fontFamily: 'Georgia, serif' }}>VIP</span>
+          </div>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem' }}>Hospitalidad Exclusiva</h3>
+          <p style={{ margin: 0, color: '#b8c3cc', fontSize: '0.9rem', lineHeight: '1.5' }}>Degustación de Whisky escocés single malt y café arábica de especialidad en cada visita.</p>
+        </div>
+        <div style={{ background: '#181a1f', padding: '30px', borderRadius: '16px', border: '1px solid #22252b' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <Target size={24} color="#c9a227" />
+            <span style={{ color: '#c9a227', fontSize: '2.5rem', fontFamily: 'Georgia, serif' }}>0.1<span style={{ fontSize: '1.2rem' }}>mm</span></span>
+          </div>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem' }}>Precisión Milimétrica</h3>
+          <p style={{ margin: 0, color: '#b8c3cc', fontSize: '0.9rem', lineHeight: '1.5' }}>Cada línea y degradado se esculpe bajo óptica de precisión y navaja de filo de diamante.</p>
+        </div>
+      </section>
 
-            <div className="card-body">
-              <div>
-                <h3>{p.nombre}</h3>
-                <div className="card-spec">{p.cargo}</div>
-                <div className="card-academy">{p.academia}</div>
-                <p className="card-bio">{p.bio}</p>
-                <div className="skill-tags">
-                  {p.tags.map((t) => (
-                    <span key={t} className="skill-pill">{t}</span>
-                  ))}
+      {/* SECCIÓN 3: Rituales de Distinción y Cuidado */}
+      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 20px' }}>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <div style={{ color: '#c9a227', fontSize: '12px', letterSpacing: '2px', fontWeight: 'bold', marginBottom: '10px' }}>LA CARTA DE TRATAMIENTOS</div>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '3rem', margin: 0, fontWeight: 'normal' }}>Rituales de Distinción y Cuidado</h2>
+          </div>
+          <p style={{ color: '#b8c3cc', maxWidth: '400px', fontSize: '0.95rem', lineHeight: '1.6' }}>
+            Procedimientos diseñados para renovar su presencia y estilo capilar, combinando herboristería botánica, alta peluquería unisex y técnicas clásicas de navaja.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '30px' }}>
+          {serviciosInicio.map((srv, index) => (
+            <div key={index} style={{ background: '#181a1f', padding: '40px', borderRadius: '16px', border: '1px solid #22252b', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'inline-flex', background: '#3b3210', color: '#c9a227', padding: '6px 12px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '20px', alignSelf: 'flex-start' }}>
+                {srv.etiqueta}
+              </div>
+              <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '1.8rem', margin: '0 0 15px 0', fontWeight: 'normal' }}>{srv.titulo}</h3>
+              <p style={{ color: '#b8c3cc', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '30px', flex: 1 }}>{srv.desc}</p>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #22252b', paddingTop: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <span style={{ color: '#b8c3cc', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}><Clock size={14}/> {srv.tiempo}</span>
+                  <span style={{ color: '#c9a227', fontSize: '1.2rem', fontWeight: 'bold' }}>${srv.precio} <span style={{ fontSize: '0.8rem' }}>CLP</span></span>
                 </div>
+                <Link to="/servicios" style={{ textDecoration: 'none' }}>
+                  <button style={{ background: 'transparent', color: '#c9a227', border: 'none', fontSize: '0.9rem', fontWeight: 'bold', cursor: 'pointer' }}>
+                    {srv.boton} →
+                  </button>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* SECCIÓN 3.5: Botón Ver Carta y Aviso */}
+      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 20px 80px', textAlign: 'center' }}>
+        
+        <Link to="/servicios" style={{ textDecoration: 'none' }}>
+          <button style={{ 
+            background: '#22252b', 
+            color: '#fff', 
+            border: '1px solid #333', 
+            padding: '18px 40px', 
+            borderRadius: '30px', 
+            fontSize: '1rem', 
+            fontWeight: 'bold', 
+            letterSpacing: '1px',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '10px',
+            transition: 'all 0.3s ease'
+          }}>
+            VER CARTA COMPLETA DE SERVICIOS & CUIDADOS
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a227" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+          </button>
+        </Link>
+
+        <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', color: '#b8c3cc', fontSize: '0.85rem' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c9a227" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Los servicios o tratamientos adicionales que solicite durante su visita se agregarán al momento de pagar en caja/recepción.
+        </div>
+
+      </section>
+
+      {/* SECCIÓN 4: La Filosofía BarberClub */}
+      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '40px 20px 80px' }}>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '50px', alignItems: 'center' }}>
+          
+          {/* Columna Izquierda: Textos */}
+          <div>
+            <div style={{ color: '#c9a227', fontSize: '12px', letterSpacing: '2px', fontWeight: 'bold', marginBottom: '15px' }}>LA FILOSOFÍA BARBERCLUB</div>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '3rem', margin: '0 0 25px 0', fontWeight: 'normal', lineHeight: '1.1' }}>
+              Más que un corte, un santuario para desconectar
+            </h2>
+            <p style={{ color: '#b8c3cc', fontSize: '1.05rem', lineHeight: '1.7', marginBottom: '40px' }}>
+              Diseñado para quienes aprecian el sosiego, los detalles meticulosos y el cuidado capilar sin distinciones. En un entorno moderno y exclusivo, creamos un refugio donde el tiempo se detiene: sillones de diseño restaurados, acústica aislada, luz cálida indirecta y atención personalizada sin prisas.
+            </p>
+
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, background: '#181a1f', padding: '25px', borderRadius: '12px', border: '1px solid #22252b' }}>
+                <div style={{ color: '#c9a227', marginBottom: '15px' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 18v-6a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"></path><path d="M6 10V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5"></path></svg>
+                </div>
+                <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem', color: '#f5f1e8' }}>Sillones Koken 1950</h3>
+                <p style={{ margin: 0, color: '#b8c3cc', fontSize: '0.85rem', lineHeight: '1.5' }}>Reclinación ergonómica con tapizado de piel nubuk para el máximo descanso lumbar.</p>
+              </div>
+              <div style={{ flex: 1, background: '#181a1f', padding: '25px', borderRadius: '12px', border: '1px solid #22252b' }}>
+                <div style={{ color: '#c9a227', marginBottom: '15px' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem', color: '#f5f1e8' }}>Privacidad Acústica</h3>
+                <p style={{ margin: 0, color: '#b8c3cc', fontSize: '0.85rem', lineHeight: '1.5' }}>Salones espaciados para sostener conversaciones confidenciales o disfrutar del silencio.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Columna Derecha: Imágenes */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <img 
+              src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?q=80&w=600&auto=format&fit=crop" 
+              alt="Filosofía 1" 
+              style={{ width: '100%', height: '400px', objectFit: 'cover', borderRadius: '16px', marginTop: '40px' }} 
+            />
+            <img 
+              src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=600&auto=format&fit=crop" 
+              alt="Filosofía 2" 
+              style={{ width: '100%', height: '400px', objectFit: 'cover', borderRadius: '16px' }} 
+            />
+          </div>
+
+        </div>
+      </section>
+
+      {/* SECCIÓN 5: Red de Ateliers (Locales) */}
+      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 20px 100px' }}>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <div style={{ color: '#c9a227', fontSize: '12px', letterSpacing: '2px', fontWeight: 'bold', marginBottom: '10px' }}>RED DE ATELIERS • SANTIAGO DE CHILE</div>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontSize: '3rem', margin: 0, fontWeight: 'normal' }}>En el Epicentro de la Exclusividad</h2>
+          </div>
+          <p style={{ color: '#b8c3cc', maxWidth: '400px', fontSize: '0.95rem', lineHeight: '1.6' }}>
+            Seleccione su atelier de preferencia. Cuatro enclaves estratégicos en Santiago diseñados bajo los más rigurosos estándares de discreción, acústica y confort de lujo.
+          </p>
+        </div>
+
+        {/* Selector de Sucursales */}
+        <div style={{ display: 'flex', background: '#181a1f', borderRadius: '12px', border: '1px solid #22252b', marginBottom: '40px', overflow: 'hidden', flexWrap: 'wrap' }}>
+          {sucursales.map((suc) => (
+            <button
+              key={suc.id}
+              onClick={() => setSucursalActiva(suc.id)}
+              style={{
+                flex: 1, padding: '20px', minWidth: '200px',
+                background: sucursalActiva === suc.id ? '#d4af37' : 'transparent',
+                color: sucursalActiva === suc.id ? '#000' : '#b8c3cc',
+                border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                fontWeight: 'bold', fontSize: '0.85rem', letterSpacing: '1px', transition: 'all 0.2s'
+              }}
+            >
+              <MapPin size={16} /> {suc.nombre.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        {/* Contenido de la Sucursal Activa */}
+        {sucursales.map((suc) => suc.id === sucursalActiva && (
+          <div key={suc.id} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '40px' }}>
+            
+            {/* Tarjeta de Información */}
+            <div style={{ background: '#181a1f', borderRadius: '16px', border: '1px solid #22252b', padding: '40px', display: 'flex', flexDirection: 'column' }}>
+              
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#22252b', color: '#c9a227', padding: '8px 16px', borderRadius: '20px', fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '20px', alignSelf: 'flex-start' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#c9a227' }}></span>
+                {suc.badge}
               </div>
 
-              <button
-                className="btn-gold"
-                style={{ width: '100%', justifyContent: 'center', borderRadius: '10px', padding: '0.8rem' }}
-                onClick={() => abrirModalReserva(p)}
-              >
-                RESERVAR CON {p.nombre.replace('Don ', '').split(' ')[0].toUpperCase()} <Calendar size={14} />
-              </button>
-            </div>
-          </article>
-        ))}
-      </main>
-    </div>
+              <h3 style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', margin: '0 0 15px 0', fontWeight: 'normal' }}>{suc.titulo}</h3>
+              <p style={{ color: '#b8c3cc', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '30px' }}>{suc.desc}</p>
 
-    )
+              <div style={{ background: '#111318', borderRadius: '12px', padding: '25px', border: '1px solid #22252b', marginBottom: '30px' }}>
+                
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                  <MapPin color="#c9a227" size={20} style={{ flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#f5f1e8' }}>Dirección & Comuna</div>
+                    <div style={{ color: '#c9a227', fontSize: '0.9rem' }}>{suc.direccion}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                  <Clock color="#c9a227" size={20} style={{ flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#f5f1e8' }}>Horarios Preferenciales</div>
+                    <div style={{ color: '#b8c3cc', fontSize: '0.9rem' }}>{suc.horario}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                  <Phone color="#c9a227" size={20} style={{ flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#f5f1e8' }}>Línea Directa & WhatsApp Concierge</div>
+                    <div style={{ color: '#c9a227', fontSize: '0.9rem', fontWeight: 'bold' }}>{suc.telefono}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '15px' }}>
+                  <Car color="#c9a227" size={20} style={{ flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: '#f5f1e8' }}>Servicio Valet Parking</div>
+                    <div style={{ color: '#b8c3cc', fontSize: '0.9rem' }}>Plazas de estacionamiento interior custodiadas.</div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div style={{ display: 'flex', gap: '15px', marginTop: 'auto' }}>
+                <button 
+                  onClick={() => onBookingClick(suc.id)} // 👈 Le pasamos el ID numérico al modal
+                  style={{ flex: 1, background: '#c9a227', color: '#000', padding: '15px', borderRadius: '30px', border: 'none', fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <Calendar size={18} /> RESERVAR EN ESTE ATELIER
+                </button>
+                <button style={{ flex: 1, background: 'transparent', color: '#f5f1e8', padding: '15px', borderRadius: '30px', border: '1px solid #333', fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <MapPin size={18} /> VER MAPA
+                </button>
+              </div>
+
+            </div>
+
+            {/* Mapa Real con Leaflet */}
+            <div style={{ borderRadius: '16px', overflow: 'hidden', position: 'relative', minHeight: '450px', border: '1px solid #22252b' }}>
+                <MapaSucursal 
+                  coordenadas={suc.coordenadas} 
+                  nombre={suc.titulo} 
+                />
+            </div>
+
+          </div>
+        ))}
+      </section>
+
+    </div>
+  );
 }
-export default Inicio;
