@@ -329,12 +329,12 @@ h1,
 }
 
 /* =========================================
-   ESTILOS DE NAVBAR (Sin dependencia de Tailwind)
+   ESTILOS DE NAVBAR
    ========================================= */
 .bc-navbar {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 2000;
   width: 100%;
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
   background-color: var(--md-sys-color-background);
