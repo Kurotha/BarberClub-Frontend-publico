@@ -11,22 +11,28 @@ import Login from './components/login/Login'; // 👈 NUEVO IMPORT
 function AppLayout() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [sucursalPrevia, setSucursalPrevia] = useState('');
+  const [servicioPrevio, setServicioPrevio] = useState('');
   const [loginAbierto, setLoginAbierto] = useState(false); // 👈 NUEVO ESTADO PARA LOGIN
 
-  const abrirModalReserva = (sucursalId = '') => {
-    setSucursalPrevia(sucursalId); 
+  const abrirModalReserva = (
+    sucursalId = '',
+    servicioId = '',
+
+  ) => {
+    setSucursalPrevia(sucursalId);
+    setServicioPrevio(servicioId);
     setModalAbierto(true);
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      
+
       {/* 👇 Le pasamos la función para abrir el login 👇 */}
-      <Navbar 
-        onBookingClick={() => abrirModalReserva('')} 
-        onAccountClick={() => setLoginAbierto(true)} 
+      <Navbar
+        onBookingClick={() => abrirModalReserva('')}
+        onAccountClick={() => setLoginAbierto(true)}
       />
-      
+
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Inicio onBookingClick={abrirModalReserva} />} />
@@ -39,16 +45,19 @@ function AppLayout() {
       <Footer />
 
       {/* Modal de Reservas */}
-      <Reservas 
-        modalAbierto={modalAbierto} 
-        setModalAbierto={setModalAbierto} 
-        sucursalPrevia={sucursalPrevia} 
+      <Reservas
+        modalAbierto={modalAbierto}
+        setModalAbierto={setModalAbierto}
+        sucursalPrevia={sucursalPrevia}
+        servicioPrevio={servicioPrevio}
       />
 
+
+
       {/* 👇 Modal de Login 👇 */}
-      <Login 
-        modalAbierto={loginAbierto} 
-        setModalAbierto={setLoginAbierto} 
+      <Login
+        modalAbierto={loginAbierto}
+        setModalAbierto={setLoginAbierto}
       />
     </div>
   );

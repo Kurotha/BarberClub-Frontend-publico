@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { CheckCircle2, ShieldCheck, X, AlertTriangle } from 'lucide-react';
+import { getActiveServices } from "../../api/servicesAPI.js";
 
 // Usamos la variable de entorno, si no existe, usamos localhost por defecto
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia }) => {
+export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servicioPrevio }) => {
   // Estados para los datos
   const [sucursalesApi, setSucursalesApi] = useState([]);
   const [especialistasApi, setEspecialistasApi] = useState([]);
@@ -28,17 +29,33 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia }) => {
 
   // 1. Cargar datos desde la API (La conexión que quitamos)
   useEffect(() => {
+    const cargarServicios = async () => {
+      try {
+        const data = await getActiveServices();
+
+        setServiciosApi(data);
+
+        if (data.length > 0 && !servicioPrevio) {
+          setServicioSel(data[0].id);
+        }
+      }
+      catch (e) {
+        console.warn('Backend desconectado. Usando datos de prueba (Mock).', e.message);
+        setServiciosApi([
+          { id: 1, nombre: 'Corte Signature & Fade', duracion_minutos: 50, precio: 26000 },
+        ]);
+      }
+
+    }
     const cargarApi = async () => {
       try {
-        const [rSuc, rEsp, rSer] = await Promise.all([
+        const [rSuc, rEsp] = await Promise.all([
           axios.get(`${API_URL}/sucursales/`),
           axios.get(`${API_URL}/especialistas/`),
-          axios.get(`${API_URL}/servicios/`),
+
         ]);
         setSucursalesApi(rSuc.data);
         setEspecialistasApi(rEsp.data);
-        setServiciosApi(rSer.data);
-        if (rSer.data.length > 0) setServicioSel(rSer.data[0].id);
       } catch (e) {
         console.warn('Backend desconectado. Usando datos de prueba (Mock).', e.message);
         // Si el backend falla, usamos los datos de prueba que ya teníamos
@@ -52,18 +69,21 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia }) => {
           { id: 1, nombre_completo: 'Don Vincenzo', sucursal_comuna: 'Las Condes' },
           { id: 2, nombre_completo: 'Camila Valenzuela', sucursal_comuna: 'Vitacura' },
         ]);
-        setServiciosApi([
-          { id: 1, nombre: 'Corte Signature & Fade', duracion_minutos: 50, precio: 26000 },
-        ]);
       }
     };
-    if (modalAbierto) cargarApi();
+    if (modalAbierto) cargarApi(), cargarServicios();
   }, [modalAbierto]);
 
   // 2. Efecto para preseleccionar la sucursal
   useEffect(() => {
     if (sucursalPrevia) setSucursalSel(sucursalPrevia);
   }, [sucursalPrevia, modalAbierto]);
+
+  useEffect(() => {
+    if (servicioPrevio)
+      setServicioSel(servicioPrevio);
+  }, [servicioPrevio, modalAbierto]);
+
 
   // 3. Enviar la cita a Django (El POST que quitamos)
   const handleConfirmarCita = async (e) => {
@@ -90,15 +110,15 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia }) => {
         consentimiento_aceptado: consentimiento,
         version_politica: 'v1.0-2026',
       };
-      
+
       const res = await axios.post(`${API_URL}/citas/`, payload);
-      
+
       setMensajeOk(`¡Cita #${res.data.id} agendada con ${res.data.especialista_nombre} en ${res.data.sucursal_nombre}!`);
     } catch (err) {
       // Si falla el backend, le mostramos el mensaje de éxito (para que no se caiga la demo)
       console.warn('No hay backend, simulando respuesta exitosa.');
       setMensajeOk(`¡Cita de prueba agendada con éxito!`);
-      
+
       // NOTA: Si el backend responde con error 409 (horario ocupado), aquí iría tu código de alternativasVecinas
     } finally {
       setEnviando(false);

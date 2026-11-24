@@ -1,5 +1,6 @@
 import React from 'react'
 import "../../style/Servicios.css";
+import "../reservas/Reservas.jsx"
 
 
 function ServiceCard({ servicio, onBooking }) {
@@ -51,7 +52,7 @@ function ServiceCard({ servicio, onBooking }) {
 
                     <button
                         className="app-button app-button--primary"
-                        onClick={() => onBooking(servicio)}
+                        onClick={() => onBooking('', servicio.id)}
                     >
                         RESERVAR
                     </button>
