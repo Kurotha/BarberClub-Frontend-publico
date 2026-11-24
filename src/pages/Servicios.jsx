@@ -100,6 +100,7 @@ const filtrados =
           <ServiceCard
             key={servicio.id}
             servicio={servicio}
+            onBooking={onBookingClick}
           />
         ))}
 
