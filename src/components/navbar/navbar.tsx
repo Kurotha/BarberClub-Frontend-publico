@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export interface NavbarProps {
   logoSrc?: string;
@@ -18,13 +18,27 @@ export function Navbar({
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
+
+  const irALocales = () => {
+    setMobileMenuOpen(false);
+    if (currentPath !== '/') {
+      navigate('/');
+    }
+    window.setTimeout(() => {
+      document.getElementById('locales')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }, currentPath === '/' ? 0 : 120);
+  };
 
   const navItems = [
     { label: 'Inicio', href: '/' },
     { label: 'Servicios', href: '/servicios' },
     { label: 'Maestros', href: '/maestros' },
-    { label: 'Locales', href: '/locales' },
+    { label: 'Locales', href: '#locales', locales: true },
   ];
 
   return (
@@ -45,7 +59,19 @@ export function Navbar({
         {/* Navegación Desktop */}
         <nav className="bc-navbar__nav" aria-label="Navegación principal">
           {navItems.map((item) => {
-            const isActive = currentPath === item.href;
+            const isActive = item.locales ? false : currentPath === item.href;
+            if (item.locales) {
+              return (
+                <button
+                  key={item.href}
+                  type="button"
+                  onClick={irALocales}
+                  className="bc-navbar__link"
+                >
+                  {item.label}
+                </button>
+              );
+            }
             return (
               <Link
                 key={item.href}
@@ -121,14 +147,25 @@ export function Navbar({
       {mobileMenuOpen && (
         <div className="bc-navbar__mobile-menu">
           {navItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className="bc-navbar__mobile-link"
-            >
-              {item.label}
-            </Link>
+            item.locales ? (
+              <button
+                key={item.href}
+                type="button"
+                onClick={irALocales}
+                className="bc-navbar__mobile-link"
+              >
+                {item.label}
+              </button>
+            ) : (
+              <Link
+                key={item.href}
+                to={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="bc-navbar__mobile-link"
+              >
+                {item.label}
+              </Link>
+            )
           ))}
         </div>
       )}

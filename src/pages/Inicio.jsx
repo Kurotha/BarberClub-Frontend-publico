@@ -317,7 +317,7 @@ export default function Inicio({ onBookingClick }) {
       </section>
 
       {/* SECCIÓN 5: Red de Ateliers (Locales) */}
-      <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 20px 100px' }}>
+      <section id="locales" style={{ maxWidth: '1280px', margin: '0 auto', padding: '60px 20px 100px', scrollMarginTop: '90px' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
           <div>
