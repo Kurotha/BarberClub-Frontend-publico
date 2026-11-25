@@ -5,13 +5,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Inicio from './pages/Inicio';
 import Maestros from './pages/Maestros';
 import Servicios from './pages/Servicios';
+import Locales from './pages/Locales'; // 👈 NUEVO IMPORT
 import Reservas from './components/reservas/Reservas';
-import Login from './components/login/Login'; // 👈 NUEVO IMPORT
+import Login from './components/login/Login';
 
 function AppLayout() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [sucursalPrevia, setSucursalPrevia] = useState('');
-  const [loginAbierto, setLoginAbierto] = useState(false); // 👈 NUEVO ESTADO PARA LOGIN
+  const [loginAbierto, setLoginAbierto] = useState(false);
 
   const abrirModalReserva = (sucursalId = '') => {
     setSucursalPrevia(sucursalId); 
@@ -21,7 +22,6 @@ function AppLayout() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       
-      {/* 👇 Le pasamos la función para abrir el login 👇 */}
       <Navbar 
         onBookingClick={() => abrirModalReserva('')} 
         onAccountClick={() => setLoginAbierto(true)} 
@@ -32,20 +32,22 @@ function AppLayout() {
           <Route path="/" element={<Inicio onBookingClick={abrirModalReserva} />} />
           <Route path="/servicios" element={<Servicios onBookingClick={abrirModalReserva} />} />
           <Route path="/maestros" element={<Maestros onBookingClick={abrirModalReserva} />} />
+          
+          {/* 👇 NUEVA RUTA AQUÍ 👇 */}
+          <Route path="/locales" element={<Locales onBookingClick={abrirModalReserva} />} />
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
       <Footer />
 
-      {/* Modal de Reservas */}
       <Reservas 
         modalAbierto={modalAbierto} 
         setModalAbierto={setModalAbierto} 
         sucursalPrevia={sucursalPrevia} 
       />
 
-      {/* 👇 Modal de Login 👇 */}
       <Login 
         modalAbierto={loginAbierto} 
         setModalAbierto={setLoginAbierto} 
