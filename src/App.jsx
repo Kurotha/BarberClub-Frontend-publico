@@ -12,15 +12,17 @@ function AppLayout() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [sucursalPrevia, setSucursalPrevia] = useState('');
   const [servicioPrevio, setServicioPrevio] = useState('');
+  const [especialistaPrevio, setEspecialistaPrevio] = useState('');
   const [loginAbierto, setLoginAbierto] = useState(false); // 👈 NUEVO ESTADO PARA LOGIN
 
   const abrirModalReserva = (
     sucursalId = '',
     servicioId = '',
-
+    especialistaId = ''
   ) => {
     setSucursalPrevia(sucursalId);
     setServicioPrevio(servicioId);
+    setEspecialistaPrevio(especialistaId);
     setModalAbierto(true);
   };
 
@@ -50,6 +52,7 @@ function AppLayout() {
         setModalAbierto={setModalAbierto}
         sucursalPrevia={sucursalPrevia}
         servicioPrevio={servicioPrevio}
+        especialistaPrevio={especialistaPrevio}
       />
 
 
