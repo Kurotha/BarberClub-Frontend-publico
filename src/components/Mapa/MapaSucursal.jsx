@@ -23,7 +23,7 @@ export default function MapaSucursal({ coordenadas, nombre }) {
       <MapContainer 
         center={coordenadas} 
         zoom={15} 
-        style={{ height: '100%', width: '100%', minHeight: '450px' }}
+        style={{ height: '100%', width: '100%', minHeight: '450px', zIndex:1 }}
         scrollWheelZoom={false}
       >
         <TileLayer
