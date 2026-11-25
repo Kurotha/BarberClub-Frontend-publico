@@ -192,7 +192,6 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
         </div>
 
         <form onSubmit={handleConfirmarCita}>
-          {/* Los selects ahora usan las variables de la API o las de prueba */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Sucursal (Atelier)</label>
             <select style={styles.input} value={sucursalSel} onChange={(e) => {
