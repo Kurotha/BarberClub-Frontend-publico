@@ -7,6 +7,20 @@ export default function Inicio({ onBookingClick }) {
   // Cambiamos el estado inicial al ID 1 (Providencia) para que coincida
   const [sucursalActiva, setSucursalActiva] = useState(1);
 
+  const verMapaSucursal = (sucursal) => {
+    const destino = encodeURIComponent(`${sucursal.direccion}, Santiago, Chile`);
+    window.open(
+      `https://www.google.com/maps/search/?api=1&query=${destino}`,
+      '_blank',
+      'noopener,noreferrer'
+    );
+
+    document.querySelector('[data-sucursal-mapa]')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  };
+
   const serviciosInicio = [
     {
       etiqueta: 'FIRMA UNISEX',
@@ -391,7 +405,11 @@ export default function Inicio({ onBookingClick }) {
                   style={{ flex: 1, background: '#c9a227', color: '#000', padding: '15px', borderRadius: '30px', border: 'none', fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
                   <Calendar size={18} /> RESERVAR EN ESTE ATELIER
                 </button>
-                <button style={{ flex: 1, background: 'transparent', color: '#f5f1e8', padding: '15px', borderRadius: '30px', border: '1px solid #333', fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                <button
+                  type="button"
+                  onClick={() => verMapaSucursal(suc)}
+                  style={{ flex: 1, background: 'transparent', color: '#f5f1e8', padding: '15px', borderRadius: '30px', border: '1px solid #333', fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+                >
                   <MapPin size={18} /> VER MAPA
                 </button>
               </div>
@@ -399,7 +417,7 @@ export default function Inicio({ onBookingClick }) {
             </div>
 
             {/* Mapa Real con Leaflet */}
-            <div style={{ borderRadius: '16px', overflow: 'hidden', position: 'relative', minHeight: '450px', border: '1px solid #22252b' }}>
+            <div data-sucursal-mapa style={{ borderRadius: '16px', overflow: 'hidden', position: 'relative', minHeight: '450px', border: '1px solid #22252b' }}>
                 <MapaSucursal 
                   coordenadas={suc.coordenadas} 
                   nombre={suc.titulo} 
