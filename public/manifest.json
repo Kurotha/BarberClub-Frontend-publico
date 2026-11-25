@@ -1,14 +1,4 @@
 {
-  "name": "Barber Club & Beauty",
-  "short_name": "BarberClub",
-  "description": "Barbería y Peluquería Unisex de Élite. Reserva tu cita en nuestros 4 ateliers.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#0d0d0d",
-  "theme_color": "#c9a227",
-  "orientation": "portrait",
-  "icons": [
-    {{
   "id": "/",
   "name": "Barber Club & Beauty",
   "short_name": "BarberClub",
@@ -21,20 +11,15 @@
   "icons": [
     {
       "src": "/barberclub_logo2.png",
-      "sizes": "any",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
-    }
-  ]
-}
-      "src": "/barberclub_logo2.png",
-      "sizes": "192x192",
-      "type": "image/png"
     },
     {
       "src": "/barberclub_logo2.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
