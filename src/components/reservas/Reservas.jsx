@@ -16,7 +16,8 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
   const [especialistaSel, setEspecialistaSel] = useState('');
   const [sucursalSel, setSucursalSel] = useState('');
   const [servicioSel, setServicioSel] = useState('');
-  const [fechaHora, setFechaHora] = useState('');
+  const [fechaReserva, setFechaReserva] = useState('');
+  const [horaReserva, setHoraReserva] = useState('');
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [correo, setCorreo] = useState('');
@@ -26,6 +27,8 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
   const [mensajeOk, setMensajeOk] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [bloquesOcupados, setBloquesOcupados] = useState([]);
+  const horasDisponibles = ['09:00', '10:00', '11:30', '13:00', '15:30', '17:00', '18:30'];
+  const fechaMinima = new Date().toISOString().slice(0, 10);
 
   // 1. Cargar datos desde la API (La conexión que quitamos)
   useEffect(() => {
@@ -79,11 +82,11 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
 
   useEffect(() => {
     const temporizador = setTimeout(() => {
-      if (!especialistaSel || !fechaHora) {
+      if (!especialistaSel || !fechaReserva) {
         setBloquesOcupados([]);
         return;
       }
-      const fecha = fechaHora.slice(0, 10);
+      const fecha = fechaReserva;
       axios.get(`${API_URL}/citas/disponibilidad/`, {
         params: { especialista: especialistaSel, fecha },
         withCredentials: true,
@@ -94,7 +97,7 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
       });
     }, 0);
     return () => clearTimeout(temporizador);
-  }, [especialistaSel, fechaHora]);
+  }, [especialistaSel, fechaReserva]);
 
 
   // 3. Enviar la cita a Django (El POST que quitamos)
@@ -111,25 +114,30 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
     setEnviando(true);
     try {
       const nombreLimpio = nombre.replace(/[0-9]/g, '').trim();
-      const telefonoLimpio = telefono.replace(/\D/g, '');
+      const telefonoLimpio = telefono.replace(/\D/g, '').slice(0, 8);
       if (!nombreLimpio || nombreLimpio.length < 3) {
         setErrorMsg('Ingrese un nombre válido con solo letras.');
         setEnviando(false);
         return;
       }
-      const telefonoChileno = `+${telefonoLimpio}`;
-      if (!/^\+569[0-9]{8}$/.test(telefonoChileno)) {
-        setErrorMsg('Ingrese un teléfono chileno con formato +569 seguido de 8 dígitos.');
+      if (!/^[0-9]{8}$/.test(telefonoLimpio)) {
+        setErrorMsg('Ingrese 8 dígitos para el teléfono móvil chileno después de +569.');
         setEnviando(false);
         return;
       }
-      const fechaSeleccionada = new Date(fechaHora);
+      if (!fechaReserva || !horaReserva) {
+        setErrorMsg('Seleccione una fecha y una hora.');
+        setEnviando(false);
+        return;
+      }
+      const fechaHoraCompleta = `${fechaReserva}T${horaReserva}:00`;
+      const fechaSeleccionada = new Date(fechaHoraCompleta);
       if (Number.isNaN(fechaSeleccionada.getTime()) || fechaSeleccionada <= new Date()) {
         setErrorMsg('Seleccione una fecha y hora futuras.');
         setEnviando(false);
         return;
       }
-      const horaSeleccionada = fechaHora.slice(11, 16);
+      const horaSeleccionada = horaReserva;
       if (bloquesOcupados.includes(horaSeleccionada)) {
         setErrorMsg('Ese horario ya está ocupado. Seleccione otro turno.');
         setEnviando(false);
@@ -138,12 +146,12 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
       // Aquí intentamos enviarlo al backend real
       const payload = {
         cliente_nombre: nombreLimpio,
-        cliente_telefono: telefonoChileno,
+        cliente_telefono: `+569${telefonoLimpio}`,
         cliente_correo: correo,
         especialista: Number(especialistaSel),
         sucursal: Number(sucursalSel),
         servicio: Number(servicioSel),
-        fecha_hora: new Date(fechaHora).toISOString(),
+        fecha_hora: fechaSeleccionada.toISOString(),
         consentimiento_aceptado: consentimiento,
         version_politica: 'v1.0-2026',
       };
@@ -216,15 +224,59 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Fecha y Hora</label>
-            <input style={styles.input} type="datetime-local" value={fechaHora} onChange={(e) => setFechaHora(e.target.value)} required />
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '10px' }}>
+              <input
+                style={styles.input}
+                type="date"
+                min={fechaMinima}
+                value={fechaReserva}
+                onChange={(e) => {
+                  setFechaReserva(e.target.value);
+                  setHoraReserva('');
+                }}
+                required
+                aria-label="Fecha de la reserva"
+              />
+              <select
+                style={styles.input}
+                value={horaReserva}
+                onChange={(e) => setHoraReserva(e.target.value)}
+                required
+                aria-label="Hora de la reserva"
+              >
+                <option value="">Seleccione hora</option>
+                {horasDisponibles.map((hora) => (
+                  <option key={hora} value={hora} disabled={bloquesOcupados.includes(hora)}>
+                    {hora} {bloquesOcupados.includes(hora) ? '- Ocupado' : 'HRS'}
+                  </option>
+                ))}
+              </select>
+            </div>
             {bloquesOcupados.length > 0 && (
               <span style={{ color: '#eab32e', fontSize: '0.78rem', marginTop: '5px' }}>
                 Horarios ocupados: {bloquesOcupados.join(', ')}
               </span>
             )}
           </div>
-          <div style={styles.inputGroup}><label style={styles.label}>Nombre Completo</label><input style={styles.input} type="text" placeholder="Ej: Juan Pérez" value={nombre} onChange={(e) => setNombre(e.target.value)} required /></div>
-          <div style={styles.inputGroup}><label style={styles.label}>Teléfono Móvil</label><input style={styles.input} type="tel" placeholder="+56 9 8765 4321" value={telefono} onChange={(e) => setTelefono(e.target.value)} required /></div>
+          <div style={styles.inputGroup}><label style={styles.label}>Nombre Completo</label><input style={styles.input} type="text" placeholder="Ej: Juan Pérez" value={nombre} onChange={(e) => setNombre(e.target.value.replace(/[0-9]/g, '').slice(0, 120))} pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]{3,120}" required /></div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Teléfono Móvil Chileno</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ ...styles.input, flexShrink: 0, borderRight: 'none', color: '#c9a227' }}>+569</span>
+              <input
+                style={{ ...styles.input, width: '100%' }}
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]{8}"
+                maxLength={8}
+                placeholder="54234739"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                required
+                aria-label="Ocho dígitos del teléfono móvil chileno"
+              />
+            </div>
+          </div>
           <div style={styles.inputGroup}><label style={styles.label}>Correo Electrónico</label><input style={styles.input} type="email" placeholder="cliente@correo.cl" value={correo} onChange={(e) => setCorreo(e.target.value)} required /></div>
 
           <div style={styles.consent}>
