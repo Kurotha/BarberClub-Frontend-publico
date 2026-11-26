@@ -4,18 +4,9 @@ import "../style/Servicios.css"
 import ServiceCard from "../components/cards/ServiciosCards";
 import { Clock, Scissors, Coffee, Car, Brain, ShieldCheck, MessageCircle, CheckCircle2, Palette } from 'lucide-react';
 
-
-
 export default function Servicios({ onBookingClick }) {
   const [services, setServices] = useState([]);
   const [filtro, setFiltro] = useState("TODOS");
-
-    const categorias = [
-    "TODOS",
-    ...new Set(
-      services.map(s => s.categoria)
-    )
-  ];
 
 const filtrados =
     filtro === "TODOS"
