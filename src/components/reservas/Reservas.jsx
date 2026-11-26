@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { CheckCircle2, ShieldCheck, X } from 'lucide-react';
 import { api } from '../../services/api'; // 👈 Importamos nuestro servicio
 
-export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia }) => {
+export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servicioPrevio }) => {
   // Estados para los datos
   const [sucursalesApi, setSucursalesApi] = useState([]);
   const [especialistasApi, setEspecialistasApi] = useState([]);
@@ -24,6 +24,24 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia }) => {
 
   // 1. Cargar datos desde la API usando nuestro servicio
   useEffect(() => {
+    const cargarServicios = async () => {
+      try {
+        const data = await getActiveServices();
+
+        setServiciosApi(data);
+
+        if (data.length > 0 && !servicioPrevio) {
+          setServicioSel(data[0].id);
+        }
+      }
+      catch (e) {
+        console.warn('Backend desconectado. Usando datos de prueba (Mock).', e.message);
+        setServiciosApi([
+          { id: 1, nombre: 'Corte Signature & Fade', duracion_minutos: 50, precio: 26000 },
+        ]);
+      }
+
+    }
     const cargarApi = async () => {
       try {
         // 🚀 Llamadas a través de nuestro archivo api.js
@@ -51,12 +69,9 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia }) => {
           { id: 1, nombre_completo: 'Don Vincenzo', sucursal_comuna: 'Las Condes' },
           { id: 2, nombre_completo: 'Camila Valenzuela', sucursal_comuna: 'Vitacura' },
         ]);
-        setServiciosApi([
-          { id: 1, nombre: 'Corte Signature & Fade', duracion_minutos: 50, precio: 26000 },
-        ]);
       }
     };
-    if (modalAbierto) cargarApi();
+    if (modalAbierto) cargarApi(), cargarServicios();
   }, [modalAbierto]);
 
   // 2. Efecto para preseleccionar la sucursal
@@ -64,7 +79,13 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia }) => {
     if (sucursalPrevia) setSucursalSel(sucursalPrevia);
   }, [sucursalPrevia, modalAbierto]);
 
-  // 3. Enviar la cita a Django usando nuestro servicio
+  useEffect(() => {
+    if (servicioPrevio)
+      setServicioSel(servicioPrevio);
+  }, [servicioPrevio, modalAbierto]);
+
+
+  // 3. Enviar la cita a Django (El POST que quitamos)
   const handleConfirmarCita = async (e) => {
     e.preventDefault();
     setErrorMsg('');

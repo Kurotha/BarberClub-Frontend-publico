@@ -13,20 +13,30 @@ function AppLayout() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [sucursalPrevia, setSucursalPrevia] = useState('');
   const [loginAbierto, setLoginAbierto] = useState(false);
+  const [servicioPrevio, setServicioPrevio] = useState('');
+  const [especialistaPrevio, setEspecialistaPrevio] = useState('');
+  const [loginAbierto, setLoginAbierto] = useState(false); // 👈 NUEVO ESTADO PARA LOGIN
 
-  const abrirModalReserva = (sucursalId = '') => {
-    setSucursalPrevia(sucursalId); 
+  const abrirModalReserva = (
+    sucursalId = '',
+    servicioId = '',
+    especialistaId = ''
+  ) => {
+    setSucursalPrevia(sucursalId);
+    setServicioPrevio(servicioId);
+    setEspecialistaPrevio(especialistaId);
     setModalAbierto(true);
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      
-      <Navbar 
-        onBookingClick={() => abrirModalReserva('')} 
-        onAccountClick={() => setLoginAbierto(true)} 
+
+      {/* 👇 Le pasamos la función para abrir el login 👇 */}
+      <Navbar
+        onBookingClick={() => abrirModalReserva('')}
+        onAccountClick={() => setLoginAbierto(true)}
       />
-      
+
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<Inicio onBookingClick={abrirModalReserva} />} />
@@ -42,15 +52,21 @@ function AppLayout() {
 
       <Footer />
 
-      <Reservas 
-        modalAbierto={modalAbierto} 
-        setModalAbierto={setModalAbierto} 
-        sucursalPrevia={sucursalPrevia} 
+      {/* Modal de Reservas */}
+      <Reservas
+        modalAbierto={modalAbierto}
+        setModalAbierto={setModalAbierto}
+        sucursalPrevia={sucursalPrevia}
+        servicioPrevio={servicioPrevio}
+        especialistaPrevio={especialistaPrevio}
       />
 
-      <Login 
-        modalAbierto={loginAbierto} 
-        setModalAbierto={setLoginAbierto} 
+
+
+      {/* 👇 Modal de Login 👇 */}
+      <Login
+        modalAbierto={loginAbierto}
+        setModalAbierto={setLoginAbierto}
       />
     </div>
   );

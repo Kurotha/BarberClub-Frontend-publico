@@ -1,0 +1,222 @@
+.bc-specialist-card {
+    overflow: hidden;
+    border-radius: 24px;
+    background: linear-gradient(
+        180deg,
+        #10141b 0%,
+        #0b0f15 100%
+    );
+    border: 1px solid #232934;
+    color: #fff;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.bc-specialist-card__image-wrapper {
+    position: relative;
+}
+
+.bc-specialist-card__image {
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.bc-specialist-card__location {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+
+    background: #111827;
+    color: #d4af37;
+
+    border: 1px solid #d4af37;
+
+    border-radius: 999px;
+
+    padding: 8px 12px;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.bc-specialist-card__experience {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+
+    background: rgba(17, 24, 39, 0.95);
+
+    color: #d4af37;
+
+    border: 1px solid #d4af37;
+
+    border-radius: 999px;
+
+    padding: 8px 14px;
+
+    font-size: 0.8rem;
+}
+
+.bc-specialist-card__content {
+    padding: 24px;
+}
+
+.bc-specialist-card__name {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.bc-specialist-card__speciality {
+    margin-top: 8px;
+    color: #d4af37;
+    font-weight: 700;
+}
+
+.bc-specialist-card__bio {
+    margin-top: 20px;
+    line-height: 1.6;
+    color: #d7dce6;
+}
+
+.bc-specialist-card__button {
+    width: 100%;
+    margin-top: 24px;
+    background: #d4af37;
+    color: #000;
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-weight: 700;
+}
+
+.bc-specialist-card__button:hover {
+    background: #e5bf45;
+}
+
+/* Contenedor principal filtros */
+
+.maestros-filtros {
+    background-color: #181a1f;
+    padding: 30px;
+    border-radius: 16px;
+    max-width: 1280px;
+    margin: 0 auto 40px auto;
+    border: 1px solid #22252b;
+}
+
+/* Título sección */
+
+.maestros-filtros__titulo {
+    margin-bottom: 15px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #b8c3cc;
+    font-weight: bold;
+}
+
+/* Filas */
+
+.maestros-filtros__fila {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.maestros-filtros__fila--sucursales {
+    margin-bottom: 25px;
+}
+
+.maestros-filtros__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Chips sucursales */
+
+.sucursal-btn {
+    background: #22252b;
+    color: #b8c3cc;
+
+    padding: 12px 24px;
+
+    border-radius: 20px;
+    border: none;
+
+    cursor: pointer;
+
+    font-weight: bold;
+    font-size: 0.85rem;
+
+    transition: all 0.2s ease;
+}
+
+.sucursal-btn:hover {
+    background: #2d3138;
+}
+
+.sucursal-btn--active {
+    background: #c9a227;
+    color: #000;
+}
+
+/* Chips disciplinas */
+
+.disciplina-btn {
+    background: transparent;
+    color: #b8c3cc;
+
+    padding: 10px 20px;
+
+    border-radius: 8px;
+
+    border: 1px solid #333;
+
+    cursor: pointer;
+
+    font-size: 11px;
+    font-weight: bold;
+
+    transition: all 0.2s ease;
+}
+
+.disciplina-btn:hover {
+    border-color: #123a5a;
+}
+
+.disciplina-btn--active {
+    background: #123a5a;
+    color: #fff;
+    border-color: #123a5a;
+}
+
+/* Indicador resultados */
+
+.maestros-filtros__contador {
+    font-size: 0.85rem;
+    color: #4ade80;
+
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.maestros-filtros__contador-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #4ade80;
+}
+
+.maestros-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(420px, 1fr));
+    gap: 24px;
+}
