@@ -1,21 +1,57 @@
 import { useState } from 'react';
 import { X, Mail, Lock, User } from 'lucide-react';
+import { api } from '../../services/api';
 
 export const Login = ({ modalAbierto, setModalAbierto }) => {
-  const [esRegistro, setEsRegistro] = useState(false); // Para alternar entre Login y Registro
+  const [esRegistro, setEsRegistro] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [nombre, setNombre] = useState(''); // Solo se usa en registro
+  const [nombre, setNombre] = useState('');
   const [mensaje, setMensaje] = useState(null);
+  const [error, setError] = useState(null);
+  const [cargando, setCargando] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulamos la autenticación
-    setMensaje(esRegistro ? '¡Cuenta creada con éxito!' : '¡Bienvenido de vuelta!');
-    setTimeout(() => {
-      setMensaje(null);
-      setModalAbierto(false);
-    }, 1500);
+    setMensaje(null);
+    setError(null);
+    setCargando(true);
+
+    try {
+      if (esRegistro) {
+        await api.registro({ username: email, email, password, first_name: nombre });
+        setMensaje('¡Cuenta creada con éxito! Ya puedes iniciar sesión.');
+        setEsRegistro(false);
+      } else {
+        const data = await api.login({ username: email, password });
+        
+        if (data.access) {
+          localStorage.setItem('token', data.access);
+          setMensaje('¡Bienvenido de vuelta! Redirigiendo...');
+        } else {
+          setMensaje('¡Bienvenido de vuelta!');
+        }
+
+        setTimeout(() => {
+          setMensaje(null);
+          setModalAbierto(false);
+        }, 1500);
+      }
+    } catch (err) {
+      console.warn('Backend desconectado. Usando modo de prueba.', err.message);
+      if (esRegistro) {
+        setMensaje('¡Cuenta creada con éxito! (Modo de prueba)');
+        setEsRegistro(false);
+      } else {
+        setMensaje('¡Bienvenido de vuelta! (Modo de prueba)');
+        setTimeout(() => {
+          setMensaje(null);
+          setModalAbierto(false);
+        }, 1500);
+      }
+    } finally {
+      setCargando(false);
+    }
   };
 
   const styles = {
@@ -40,7 +76,7 @@ export const Login = ({ modalAbierto, setModalAbierto }) => {
     button: {
       background: '#c9a227', color: '#000', border: 'none', padding: '15px',
       borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer',
-      width: '100%', marginTop: '10px'
+      width: '100%', marginTop: '10px', opacity: cargando ? 0.7 : 1
     },
     toggleText: {
       textAlign: 'center', marginTop: '20px', fontSize: '0.9rem', color: '#b8c3cc'
@@ -56,7 +92,6 @@ export const Login = ({ modalAbierto, setModalAbierto }) => {
     <div style={styles.backdrop} onClick={(e) => { if (e.target === e.currentTarget) setModalAbierto(false); }}>
       <div style={styles.box}>
         
-        {/* Botón de cerrar */}
         <button onClick={() => setModalAbierto(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: '#b8c3cc', cursor: 'pointer' }}>
           <X size={24} />
         </button>
@@ -96,20 +131,17 @@ export const Login = ({ modalAbierto, setModalAbierto }) => {
             </div>
           </div>
 
-          <button type="submit" style={styles.button}>
-            {esRegistro ? 'REGISTRARSE' : 'INGRESAR'}
+          <button type="submit" style={styles.button} disabled={cargando}>
+            {cargando ? 'PROCESANDO...' : (esRegistro ? 'REGISTRARSE' : 'INGRESAR')}
           </button>
         </form>
 
-        {mensaje && (
-          <div style={{ background: '#d1ebdd', color: '#0d3522', padding: '12px', borderRadius: '8px', marginTop: '20px', fontSize: '0.9rem', textAlign: 'center', fontWeight: 'bold' }}>
-            {mensaje}
-          </div>
-        )}
+        {error && <div style={{ background: '#ffdad6', color: '#410002', padding: '12px', borderRadius: '8px', marginTop: '20px', fontSize: '0.9rem', textAlign: 'center' }}>{error}</div>}
+        {mensaje && <div style={{ background: '#d1ebdd', color: '#0d3522', padding: '12px', borderRadius: '8px', marginTop: '20px', fontSize: '0.9rem', textAlign: 'center', fontWeight: 'bold' }}>{mensaje}</div>}
 
         <div style={styles.toggleText}>
           {esRegistro ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
-          <span style={styles.link} onClick={() => { setEsRegistro(!esRegistro); setMensaje(null); }}>
+          <span style={styles.link} onClick={() => { setEsRegistro(!esRegistro); setMensaje(null); setError(null); }}>
             {esRegistro ? 'Inicia Sesión aquí' : 'Regístrate aquí'}
           </span>
         </div>

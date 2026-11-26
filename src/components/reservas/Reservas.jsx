@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { CheckCircle2, ShieldCheck, X, AlertTriangle } from 'lucide-react';
-import { getActiveServices } from "../../api/servicesAPI.js";
-
-// Usamos la variable de entorno, si no existe, usamos localhost por defecto
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+import { CheckCircle2, ShieldCheck, X } from 'lucide-react';
+import { api } from '../../services/api'; // 👈 Importamos nuestro servicio
 
 export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servicioPrevio }) => {
   // Estados para los datos
@@ -25,9 +21,8 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
   const [enviando, setEnviando] = useState(false);
   const [mensajeOk, setMensajeOk] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
-  const [alternativasVecinas, setAlternativasVecinas] = useState(null);
 
-  // 1. Cargar datos desde la API (La conexión que quitamos)
+  // 1. Cargar datos desde la API usando nuestro servicio
   useEffect(() => {
     const cargarServicios = async () => {
       try {
@@ -49,16 +44,21 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
     }
     const cargarApi = async () => {
       try {
-        const [rSuc, rEsp] = await Promise.all([
-          axios.get(`${API_URL}/sucursales/`),
-          axios.get(`${API_URL}/especialistas/`),
-
+        // 🚀 Llamadas a través de nuestro archivo api.js
+        const [sucursales, especialistas, servicios] = await Promise.all([
+          api.getSucursales(),
+          api.getEspecialistas(),
+          api.getServicios(),
         ]);
-        setSucursalesApi(rSuc.data);
-        setEspecialistasApi(rEsp.data);
+        
+        setSucursalesApi(sucursales);
+        setEspecialistasApi(especialistas);
+        setServiciosApi(servicios);
+        if (servicios.length > 0) setServicioSel(servicios[0].id);
       } catch (e) {
         console.warn('Backend desconectado. Usando datos de prueba (Mock).', e.message);
-        // Si el backend falla, usamos los datos de prueba que ya teníamos
+        
+        // Si el backend falla, usamos los datos de prueba
         setSucursalesApi([
           { id: 1, comuna: 'Providencia', nombre: 'Pedro de Valdivia' },
           { id: 2, comuna: 'Las Condes', nombre: 'El Golf' },
@@ -98,7 +98,6 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
 
     setEnviando(true);
     try {
-      // Aquí intentamos enviarlo al backend real
       const payload = {
         cliente_nombre: nombre,
         cliente_telefono: telefono,
@@ -110,22 +109,21 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
         consentimiento_aceptado: consentimiento,
         version_politica: 'v1.0-2026',
       };
-
-      const res = await axios.post(`${API_URL}/citas/`, payload);
-
-      setMensajeOk(`¡Cita #${res.data.id} agendada con ${res.data.especialista_nombre} en ${res.data.sucursal_nombre}!`);
+      
+      // 🚀 Llamada a través de nuestro servicio
+      const res = await api.crearCita(payload);
+      
+      setMensajeOk(`¡Cita #${res.id} agendada con ${res.especialista_nombre} en ${res.sucursal_nombre}!`);
     } catch (err) {
-      // Si falla el backend, le mostramos el mensaje de éxito (para que no se caiga la demo)
-      console.warn('No hay backend, simulando respuesta exitosa.');
+      // Plan B si el backend falla
+      console.warn('No hay backend, simulando respuesta exitosa.', err.message);
       setMensajeOk(`¡Cita de prueba agendada con éxito!`);
-
-      // NOTA: Si el backend responde con error 409 (horario ocupado), aquí iría tu código de alternativasVecinas
     } finally {
       setEnviando(false);
     }
   };
 
-  // Los estilos se mantienen igual para que se vea bonito
+  // Los estilos se mantienen igual
   const styles = {
     backdrop: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(5px)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' },
     box: { backgroundColor: '#181a1f', border: '1px solid #333', borderRadius: '16px', width: '100%', maxWidth: '500px', padding: '30px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' },
@@ -147,7 +145,6 @@ export const Reservas = ({ modalAbierto, setModalAbierto, sucursalPrevia, servic
         </div>
 
         <form onSubmit={handleConfirmarCita}>
-          {/* Los selects ahora usan las variables de la API o las de prueba */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Sucursal (Atelier)</label>
             <select style={styles.input} value={sucursalSel} onChange={(e) => setSucursalSel(e.target.value)} required>

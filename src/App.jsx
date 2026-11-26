@@ -5,12 +5,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Inicio from './pages/Inicio';
 import Maestros from './pages/Maestros';
 import Servicios from './pages/Servicios';
+import Locales from './pages/Locales'; // 👈 NUEVO IMPORT
 import Reservas from './components/reservas/Reservas';
-import Login from './components/login/Login'; // 👈 NUEVO IMPORT
+import Login from './components/login/Login';
 
 function AppLayout() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [sucursalPrevia, setSucursalPrevia] = useState('');
+  const [loginAbierto, setLoginAbierto] = useState(false);
   const [servicioPrevio, setServicioPrevio] = useState('');
   const [especialistaPrevio, setEspecialistaPrevio] = useState('');
   const [loginAbierto, setLoginAbierto] = useState(false); // 👈 NUEVO ESTADO PARA LOGIN
@@ -40,6 +42,10 @@ function AppLayout() {
           <Route path="/" element={<Inicio onBookingClick={abrirModalReserva} />} />
           <Route path="/servicios" element={<Servicios onBookingClick={abrirModalReserva} />} />
           <Route path="/maestros" element={<Maestros onBookingClick={abrirModalReserva} />} />
+          
+          {/* 👇 NUEVA RUTA AQUÍ 👇 */}
+          <Route path="/locales" element={<Locales onBookingClick={abrirModalReserva} />} />
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
